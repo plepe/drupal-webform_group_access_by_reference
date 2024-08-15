@@ -1,0 +1,8 @@
+webform.settings.third_party.webform_group_access:
+  type: mapping
+  label: 'Webform Group Access Settings'
+  mapping:
+    settings:
+      reference_field:
+        type: string
+        label: 'Group Reference Field'
