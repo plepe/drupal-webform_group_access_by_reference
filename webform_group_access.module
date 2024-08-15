@@ -19,26 +19,21 @@ function webform_group_access_webform_submission_access(WebformSubmissionInterfa
 
   // If the field is not set, than this functionality is disabled.
   if (!$reference_field) {
-    return AccessResult::allowed();
+    return AccessResult::neutral();
   }
 
   // Check if the operation is 'view'.
   if ($operation === 'view') {
-    // Check if the user has a role that bypasses the group access check.
-    if (user_has_bypass_role($account)) {
-      return AccessResult::allowed();
-    }
-
     // Get the group reference field value.
     $group_id = $webform_submission->getElementData($reference_field);
 
     // Check if the user is a member of the group.
-    if (!is_user_in_group($account, $group_id)) {
-      return AccessResult::forbidden();
+    if (is_user_in_group($account, $group_id)) {
+      return AccessResult::allowed();
     }
   }
 
-  return AccessResult::allowed();
+  return AccessResult::neutral();
 }
 
 /**
@@ -59,29 +54,6 @@ function is_user_in_group(AccountInterface $account, $group_id) {
     // Check if the user is a member of the group.
     return !!$group->getMember($account);
   }
-  return FALSE;
-}
-
-/**
- * Check if the user has a role that bypasses the group access check.
- *
- * @param \Drupal\Core\Session\AccountInterface $account
- *   The user account.
- *
- * @return bool
- *   TRUE if the user has a bypass role, FALSE otherwise.
- */
-function user_has_bypass_role(AccountInterface $account) {
-  // Define the roles that should bypass the group access check.
-  $bypass_roles = ['administrator']; // Add other roles as needed.
-
-  // Check if the user has any of the bypass roles.
-  foreach ($bypass_roles as $role) {
-    if ($account->hasPermission('administer site configuration') || $account->hasRole($role)) {
-      return TRUE;
-    }
-  }
-
   return FALSE;
 }
 
