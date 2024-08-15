@@ -1,0 +1,8 @@
+name: 'Webform Group Access'
+type: module
+description: 'Restricts access to webform submissions based on group membership (resp. role) referenced by a field.'
+core_version_requirement: ^10
+package: Custom
+dependencies:
+  - drupal:webform
+  - drupal:group

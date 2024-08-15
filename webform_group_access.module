@@ -1,0 +1,44 @@
+<?php
+
+use Drupal\Core\Session\AccountInterface;
+use Drupal\webform\Entity\WebformSubmission;
+use Drupal\webform\WebformSubmissionInterface;
+
+/**
+ * Implements hook_webform_submission_access().
+ */
+function webform_group_access_webform_submission_access(WebformSubmissionInterface $webform_submission, $operation, AccountInterface $account) {
+  // Check if the operation is 'view'.
+  if ($operation === 'view') {
+    // Get the group reference field value.
+    $group_id = $webform_submission->getElementData('group_reference_field_name'); // Replace with your actual field name.
+
+    // Check if the user is a member of the group.
+    if (!is_user_in_group($account, $group_id)) {
+      return AccessResult::forbidden();
+    }
+  }
+
+  return AccessResult::allowed();
+}
+
+/**
+ * Check if a user is a member of a specific group.
+ *
+ * @param \Drupal\Core\Session\AccountInterface $account
+ *   The user account.
+ * @param int $group_id
+ *   The group ID.
+ *
+ * @return bool
+ *   TRUE if the user is a member of the group, FALSE otherwise.
+ */
+function is_user_in_group(AccountInterface $account, $group_id) {
+  // Load the group entity.
+  $group = \Drupal\group\Entity\Group::load($group_id);
+  if ($group) {
+    // Check if the user is a member of the group.
+    return $group->hasMember($account);
+  }
+  return FALSE;
+}
