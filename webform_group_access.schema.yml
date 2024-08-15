@@ -6,3 +6,6 @@ webform.settings.third_party.webform_group_access:
       reference_field:
         type: string
         label: 'Group Reference Field'
+      required_role:
+        type: string
+        label: 'Required Role in Group'

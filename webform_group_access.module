@@ -14,8 +14,9 @@ function webform_group_access_webform_submission_access(WebformSubmissionInterfa
   // Load the webform entity.
   $webform = $webform_submission->getWebform();
 
-  // Get the reference field from the configuration.
+  // Get the reference field and the required role from the configuration.
   $reference_field = $webform->getThirdPartySetting('webform_group_access', 'reference_field');
+  $required_role = $webform->getThirdPartySetting('webform_group_access', 'required_role');
 
   // If the field is not set, than this functionality is disabled.
   if (!$reference_field) {
@@ -28,7 +29,7 @@ function webform_group_access_webform_submission_access(WebformSubmissionInterfa
     $group_id = $webform_submission->getElementData($reference_field);
 
     // Check if the user is a member of the group.
-    if (is_user_in_group($account, $group_id)) {
+    if (is_user_in_group_with_role($account, $group_id, $required_role)) {
       return AccessResult::allowed();
     }
   }
@@ -43,17 +44,31 @@ function webform_group_access_webform_submission_access(WebformSubmissionInterfa
  *   The user account.
  * @param int $group_id
  *   The group ID.
+ * @param string $role
+ *   The role to check for.
  *
  * @return bool
  *   TRUE if the user is a member of the group, FALSE otherwise.
  */
-function is_user_in_group(AccountInterface $account, $group_id) {
+function is_user_in_group_with_role(AccountInterface $account, int $group_id, string $role = null) {
   // Load the group entity.
   $group = \Drupal\group\Entity\Group::load($group_id);
   if ($group) {
+    $group_membership = $group->getMember($account);
+
     // Check if the user is a member of the group.
-    return !!$group->getMember($account);
+    if (!$group_membership) {
+      return FALSE;
+    }
+
+    // Check if the user has the specified role (if set).
+    if ($role && !array_key_exists($role, $group_membership->getRoles())) {
+      return FALSE;
+    }
+
+    return TRUE;
   }
+
   return FALSE;
 }
 
@@ -77,5 +92,12 @@ function webform_group_access_webform_third_party_settings_form_alter(array &$fo
     '#title' => t('Group Reference Field'),
     '#description' => t('Enter the machine name of the group reference field.'),
     '#default_value' => $webform->getThirdPartySetting('webform_group_access', 'reference_field'),
+  ];
+
+  $form['third_party_settings']['webform_group_access']['required_role'] = [
+    '#type' => 'textfield',
+    '#title' => t('Required Role in Group'),
+    '#description' => t('Enter the machine name of the role required for access.'),
+    '#default_value' => $webform->getThirdPartySetting('webform_group_access', 'required_role'),
   ];
 }
