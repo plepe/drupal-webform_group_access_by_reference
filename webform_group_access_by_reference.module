@@ -10,13 +10,13 @@ use Drupal\Core\Access\AccessResult;
 /**
  * Implements hook_webform_submission_access().
  */
-function webform_group_access_webform_submission_access(WebformSubmissionInterface $webform_submission, $operation, AccountInterface $account) {
+function webform_group_access_by_reference_webform_submission_access(WebformSubmissionInterface $webform_submission, $operation, AccountInterface $account) {
   // Load the webform entity.
   $webform = $webform_submission->getWebform();
 
   // Get the reference field and the required role from the configuration.
-  $reference_field = $webform->getThirdPartySetting('webform_group_access', 'reference_field');
-  $required_role = $webform->getThirdPartySetting('webform_group_access', 'required_role');
+  $reference_field = $webform->getThirdPartySetting('webform_group_access_by_reference', 'reference_field');
+  $required_role = $webform->getThirdPartySetting('webform_group_access_by_reference', 'required_role');
 
   // If the field is not set, than this functionality is disabled.
   if (!$reference_field) {
@@ -75,29 +75,29 @@ function is_user_in_group_with_role(AccountInterface $account, int $group_id, st
 /**
  * Implements hook_webform_settings_form_alter().
  */
-function webform_group_access_webform_third_party_settings_form_alter(array &$form, FormStateInterface $form_state) {
+function webform_group_access_by_reference_webform_third_party_settings_form_alter(array &$form, FormStateInterface $form_state) {
   /** @var Drupal\webform\EntitySettings\WebformEntitySettingsAccessForm $entity_form */
   $entity_form = $form_state->getFormObject();
   /** @var \Drupal\webform\WebformInterface $webform */
   $webform = $entity_form->getEntity();
 
-  $form['third_party_settings']['webform_group_access'] = [
+  $form['third_party_settings']['webform_group_access_by_reference'] = [
     '#type' => 'details',
-    '#title' => t('Webform Group Access Settings'),
+    '#title' => t('Webform Group Access by Reference Settings'),
     '#open' => TRUE,
   ];
 
-  $form['third_party_settings']['webform_group_access']['reference_field'] = [
+  $form['third_party_settings']['webform_group_access_by_reference']['reference_field'] = [
     '#type' => 'textfield',
     '#title' => t('Group Reference Field'),
     '#description' => t('Enter the machine name of the group reference field.'),
-    '#default_value' => $webform->getThirdPartySetting('webform_group_access', 'reference_field'),
+    '#default_value' => $webform->getThirdPartySetting('webform_group_access_by_reference', 'reference_field'),
   ];
 
-  $form['third_party_settings']['webform_group_access']['required_role'] = [
+  $form['third_party_settings']['webform_group_access_by_reference']['required_role'] = [
     '#type' => 'textfield',
     '#title' => t('Required Role in Group'),
     '#description' => t('Enter the machine name of the role required for access.'),
-    '#default_value' => $webform->getThirdPartySetting('webform_group_access', 'required_role'),
+    '#default_value' => $webform->getThirdPartySetting('webform_group_access_by_reference', 'required_role'),
   ];
 }
