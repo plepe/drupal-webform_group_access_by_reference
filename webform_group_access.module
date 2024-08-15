@@ -3,6 +3,7 @@
 use Drupal\Core\Session\AccountInterface;
 use Drupal\webform\Entity\WebformSubmission;
 use Drupal\webform\WebformSubmissionInterface;
+use Drupal\Core\Access\AccessResult;
 
 /**
  * Implements hook_webform_submission_access().
@@ -38,7 +39,7 @@ function is_user_in_group(AccountInterface $account, $group_id) {
   $group = \Drupal\group\Entity\Group::load($group_id);
   if ($group) {
     // Check if the user is a member of the group.
-    return $group->hasMember($account);
+    return !!$group->getMember($account);
   }
   return FALSE;
 }
